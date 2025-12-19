@@ -45,6 +45,19 @@ WITH (FORMAT csv, HEADER, DELIMITER ',');
 /*Gender differences in workout performance?*/
 SELECT
   p.gender,
+  
+  /*IQR calculations Calories burned*/
+  PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY w.calories_burned) AS calories_q1,
+  PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY w.calories_burned) AS calories_q3,
+  PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY w.calories_burned)
+  	- PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY w.calories_burned) AS calories_iqr,
+
+  /*IQR calculations Session duration*/
+  PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY w.duration) AS duration_q1,
+  PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY w.duration) AS duration_q3,
+  PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY w.duration)
+    - PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY w.duration) AS duration_iqr,
+
   COUNT(*) AS n_probands,
   AVG(w.calories_burned) AS avg_calories_burned,
   STDDEV_SAMP(w.calories_burned) AS sd_calories_burned,
@@ -55,4 +68,3 @@ JOIN fitness.workout w
   ON p.proband_id = w.proband_id
 GROUP BY p.gender
 ORDER BY p.gender;
-
